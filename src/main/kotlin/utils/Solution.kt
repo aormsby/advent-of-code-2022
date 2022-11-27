@@ -1,4 +1,4 @@
-package util
+package utils
 
 abstract class Solution {
     private var startTime: Long = 0

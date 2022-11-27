@@ -1,6 +1,6 @@
 package solutions
 
-import other.Solution
+import utils.Solution
 
 // run only this day
 fun main() {
