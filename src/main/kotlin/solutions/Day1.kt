@@ -1,9 +1,11 @@
 package solutions
 
-import util.Solution
+import other.Solution
 
 // run only this day
-fun main() { Day1() }
+fun main() {
+    Day1()
+}
 
 class Day1 : Solution() {
     init {
