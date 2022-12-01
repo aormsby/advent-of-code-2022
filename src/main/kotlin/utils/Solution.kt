@@ -19,7 +19,7 @@ abstract class Solution {
 
     // print execution time for a part, reset start time for next part
     private fun printTime() {
-        println("-- ${System.currentTimeMillis() - startTime} ms")
+        println("  -- ${System.currentTimeMillis() - startTime} ms")
         setStartTime()
     }
 

@@ -4,7 +4,7 @@ import solutions.*
 fun main() {
     val startTime = System.currentTimeMillis()
 
-    Day1()
+    Day1CalorieCounting()
 //    Day2()
 //    Day3()
 //    Day4()
