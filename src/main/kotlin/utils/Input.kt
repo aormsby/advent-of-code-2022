@@ -38,19 +38,21 @@ object Input {
     inline fun <reified T, reified R> parseToPairList(
         filename: String,
         pairDelimiter: String = "",
-        itemDelimiter: String = ""
+        groupDelimiter: String = ""
     ): List<Pair<T, R>> =
         parseLines(filename).map {
             val l = it.split(pairDelimiter)
             Pair(
                 when (T::class) {
                     Int::class -> l[0].toInt() as T
-                    Coord2d::class -> parseToCoord2d(l[0], delimiter = itemDelimiter) as T
+                    Char::class -> l[0].single() as T
+                    Coord2d::class -> parseToCoord2d(l[0], delimiter = groupDelimiter) as T
                     else -> l[0] as T   // String
                 },
                 when (R::class) {
                     Int::class -> l[1].toInt() as R
-                    Coord2d::class -> parseToCoord2d(l[1], delimiter = itemDelimiter) as R
+                    Char::class -> l[1].single() as R
+                    Coord2d::class -> parseToCoord2d(l[1], delimiter = groupDelimiter) as R
                     else -> l[1] as R   // String
                 }
             )
