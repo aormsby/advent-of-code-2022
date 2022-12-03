@@ -13,7 +13,7 @@ class Day3RucksackReorganization : Solution() {
     private val A = 'A'
 
     init {
-        begin("Day 3 - Rucksack eorganization")
+        begin("Day 3 - Rucksack Reorganization")
 
         val input = Input.parseLines("/d3_rucksack_items.txt")
 
