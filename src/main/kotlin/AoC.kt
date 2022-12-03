@@ -5,8 +5,8 @@ fun main() {
     val startTime = System.currentTimeMillis()
 
     Day1CalorieCounting()
-//    Day2()
-//    Day3()
+    Day2RockPaperScissors()
+    Day3RucksackReorganization()
 //    Day4()
 //    Day5()
 //    Day6()
