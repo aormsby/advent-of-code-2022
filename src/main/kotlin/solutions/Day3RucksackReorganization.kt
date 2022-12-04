@@ -43,6 +43,6 @@ class Day3RucksackReorganization : Solution() {
         }
 
     private fun Char.priority(): Int =
-        if (this >= a) code - a.code + 1    // is lowercase
+        if (isLowerCase()) code - a.code + 1
         else code - A.code + 26 + 1
 }
