@@ -59,8 +59,8 @@ object Input {
         }
 
     /**
-     * Returns[Coord2d] from String
-     * @param c current Coord2dinate to parse
+     * @param c current [Coord2d] to parse
+     * @return [Coord2d]
      */
     fun parseToCoord2d(c: String, delimiter: String = ""): Coord2d =
         with(c.split(delimiter)) {
