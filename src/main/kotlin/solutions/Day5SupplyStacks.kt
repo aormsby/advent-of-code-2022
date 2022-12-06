@@ -62,14 +62,14 @@ class Day5SupplyStacks : Solution() {
         val stackRows = input.map { line ->
             val padLine = line.padEnd(strLen,' ')
 
-            val row = StringBuilder()
+            val row = mutableListOf<Char>()
             for (i in 1 until strLen step 4) {
                 val c = padLine[i]
-                if (c != ' ') row.append(c)
-                else row.append('x')
+                if (c != ' ') row.add(c)
+                else row.add('x')
             }
 
-            row.toString().map { it }
+            return@map row
         }
 
         // transpose the list from rows to vertical stacks (was read in horizontally)
