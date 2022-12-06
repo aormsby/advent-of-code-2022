@@ -8,7 +8,7 @@ fun main() {
     Day2RockPaperScissors()
     Day3RucksackReorganization()
     Day4CampCleanup()
-//    Day5()
+    Day5SupplyStacks()
 //    Day6()
 //    Day7()
 //    Day8()
