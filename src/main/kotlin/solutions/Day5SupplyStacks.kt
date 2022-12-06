@@ -16,7 +16,7 @@ class Day5SupplyStacks : Solution() {
         val input = Input.parseLines(filename = "/d5_crane_procedure.txt")
         val stackRows = input.takeWhile { it.isNotEmpty() }.dropLast(1)
 
-        val stacks = getVerticalStacks(stackRows)
+        val stacks = getVerticalStacksV2(stackRows)
         val instructions = getInstructions(input.drop(stackRows.size + 2))
 
         // list mapped in argument to make a copy and reuse the original stack for part 2
@@ -45,6 +45,31 @@ class Day5SupplyStacks : Solution() {
                 .split("")
                 .filter { it.isNotBlank() }
                 .map { it.single() }
+        }
+
+        // transpose the list from rows to vertical stacks (was read in horizontally)
+        return Collections.transposeList(stackRows)
+            .map { col ->
+                col.filter { it != 'x' }
+                    .reversed().toMutableList()
+            }
+    }
+
+    // 2nd parsing method! simpler, a bit faster, uses padding and expected positioning to get crates
+    private fun getVerticalStacksV2(input: List<String>): List<MutableList<Char>> {
+        val strLen = input.last().length
+
+        val stackRows = input.map { line ->
+            val padLine = line.padEnd(strLen,' ')
+
+            val row = StringBuilder()
+            for (i in 1 until strLen step 4) {
+                val c = padLine[i]
+                if (c != ' ') row.append(c)
+                else row.append('x')
+            }
+
+            row.toString().map { it }
         }
 
         // transpose the list from rows to vertical stacks (was read in horizontally)
