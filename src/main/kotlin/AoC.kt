@@ -9,7 +9,7 @@ fun main() {
     Day3RucksackReorganization()
     Day4CampCleanup()
     Day5SupplyStacks()
-//    Day6()
+    Day6TuningTrouble()
 //    Day7()
 //    Day8()
 //    Day9()
