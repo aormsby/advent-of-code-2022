@@ -10,7 +10,7 @@ fun main() {
     Day4CampCleanup()
     Day5SupplyStacks()
     Day6TuningTrouble()
-//    Day7()
+    Day7NoSpaceLeftOnDevice()
 //    Day8()
 //    Day9()
 //    Day10()
