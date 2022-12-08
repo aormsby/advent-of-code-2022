@@ -26,8 +26,8 @@ class Day7NoSpaceLeftOnDevice : Solution() {
     }
 
     // map out the directories with direct file sizes > 0
-    private fun getDirMap(stack: Stack<String>): Map<String, Long> {
-        val dirMap = mutableMapOf<String, Long>()
+    private fun getDirMap(stack: Stack<String>): Map<String, Int> {
+        val dirMap = mutableMapOf<String, Int>()
         val currentDir = StringBuilder()
 
         while (stack.size > 0) {
@@ -48,7 +48,7 @@ class Day7NoSpaceLeftOnDevice : Solution() {
 
                 dirMap[currentDir.toString()] = files
                     .filter { it.startsWith("d").not() }
-                    .fold(initial = 0L) { acc, str -> acc + str.split(" ").first().toLong() }
+                    .fold(initial = 0) { acc, str -> acc + str.split(" ").first().toInt() }
             }
         }
 
@@ -56,8 +56,8 @@ class Day7NoSpaceLeftOnDevice : Solution() {
     }
 
     // add sizes from directory paths and subdirectories
-    private fun getSumOfSmallDirectories(dirMap: Map<String, Long>): Map<String, Long> {
-        val recursiveSizeMap = mutableMapOf<String, Long>()
+    private fun getSumOfSmallDirectories(dirMap: Map<String, Int>): Map<String, Int> {
+        val recursiveSizeMap = mutableMapOf<String, Int>()
 
         dirMap.entries.forEach { entry ->
             var dir = entry.key
@@ -75,9 +75,9 @@ class Day7NoSpaceLeftOnDevice : Solution() {
     }
 
     // compare sizes to find the single smallest directory to delete that provides enough disk space
-    private fun findSmallestDirToDelete(dirs: Map<String, Long>): Long {
-        val totalDiskSpace = 70000000L
-        val neededDiskSpace = 30000000L
+    private fun findSmallestDirToDelete(dirs: Map<String, Int>): Int {
+        val totalDiskSpace = 70000000
+        val neededDiskSpace = 30000000
         val usedDiskSpace = dirs["/"]!!
         val targetFreeSpace = neededDiskSpace - (totalDiskSpace - usedDiskSpace)
 
