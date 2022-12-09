@@ -11,7 +11,7 @@ fun main() {
     Day5SupplyStacks()
     Day6TuningTrouble()
     Day7NoSpaceLeftOnDevice()
-//    Day8()
+    Day8TreetopTreeHouse()
 //    Day9()
 //    Day10()
 //    Day11()
