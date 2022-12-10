@@ -2,6 +2,7 @@ package models
 
 import kotlin.math.abs
 import kotlin.math.pow
+import kotlin.math.sign
 import kotlin.math.sqrt
 
 data class Coord2d(
@@ -10,6 +11,10 @@ data class Coord2d(
 ) {
     operator fun plus(c: Coord2d) = Coord2d(x = x + c.x, y = y + c.y)
     operator fun minus(c: Coord2d) = Coord2d(x = x - c.x, y = y - c.y)
+    operator fun times(c: Coord2d) = Coord2d(x = x * c.x, y = y * c.y)
+    operator fun times(n: Int) = Coord2d(x = x * n, y = y * n)
+
+    fun signs() = Coord2d(x.sign, y.sign)
 
     fun adjacentNeighbors(xLimit: Int = -1, yLimit: Int = -1): List<Coord2d> {
         var adjs = listOf(

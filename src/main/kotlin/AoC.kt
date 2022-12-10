@@ -12,7 +12,7 @@ fun main() {
     Day6TuningTrouble()
     Day7NoSpaceLeftOnDevice()
     Day8TreetopTreeHouse()
-//    Day9()
+    Day9RopeBridge()
 //    Day10()
 //    Day11()
 //    Day12()
