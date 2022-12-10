@@ -13,7 +13,7 @@ fun main() {
     Day7NoSpaceLeftOnDevice()
     Day8TreetopTreeHouse()
     Day9RopeBridge()
-//    Day10()
+    Day10CathodeRayTube()
 //    Day11()
 //    Day12()
 //    Day13()

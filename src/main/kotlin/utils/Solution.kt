@@ -17,6 +17,16 @@ abstract class Solution {
         printTime()
     }
 
+    protected fun outputGrid(descriptor: String, result: List<List<Any>>) {
+        println("Part $activePart -> $descriptor =")
+        result.forEach { r ->
+            r.forEach { c -> print(c) }
+            println()
+        }
+        activePart++
+        printTime()
+    }
+
     // print execution time for a part, reset start time for next part
     private fun printTime() {
         println("  -- ${System.currentTimeMillis() - startTime} ms")
