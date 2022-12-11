@@ -14,7 +14,7 @@ fun main() {
     Day8TreetopTreeHouse()
     Day9RopeBridge()
     Day10CathodeRayTube()
-//    Day11()
+    Day11MonkeyInTheMiddle()
 //    Day12()
 //    Day13()
 //    Day14()
