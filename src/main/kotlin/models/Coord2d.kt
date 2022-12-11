@@ -1,9 +1,8 @@
 package models
 
 import kotlin.math.abs
-import kotlin.math.pow
+import kotlin.math.hypot
 import kotlin.math.sign
-import kotlin.math.sqrt
 
 data class Coord2d(
     var x: Int,
@@ -54,9 +53,7 @@ data class Coord2d(
         return adjacentNeighbors(xLimit, yLimit) + diagonalNeighbors(xLimit, yLimit)
     }
 
-    fun distanceTo(c: Coord2d): Float = sqrt(
-        ((x - c.x).toFloat()).pow(2) + ((y - c.y).toFloat()).pow(2)
-    )
+    fun distanceTo(c: Coord2d): Float = hypot((x - c.x).toFloat(), (y - c.y).toFloat())
 
     fun manhattanDistanceTo(c: Coord2d): Int =
         with(diffWith(c)) {
