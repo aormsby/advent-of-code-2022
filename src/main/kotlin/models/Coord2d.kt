@@ -53,7 +53,7 @@ data class Coord2d(
         return adjacentNeighbors(xLimit, yLimit) + diagonalNeighbors(xLimit, yLimit)
     }
 
-    fun distanceTo(c: Coord2d): Float = hypot((x - c.x).toFloat(), (y - c.y).toFloat())
+    fun euclideanDistanceTo(c: Coord2d): Float = hypot((x - c.x).toFloat(), (y - c.y).toFloat())
 
     fun manhattanDistanceTo(c: Coord2d): Int =
         with(diffWith(c)) {
