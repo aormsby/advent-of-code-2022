@@ -16,7 +16,7 @@ fun main() {
     Day10CathodeRayTube()
     Day11MonkeyInTheMiddle()
     Day12HillClimbingAlgorithm()
-//    Day13()
+    Day13DistressSignal()
 //    Day14()
 //    Day15()
 //    Day16()
