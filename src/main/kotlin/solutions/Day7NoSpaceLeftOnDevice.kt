@@ -2,6 +2,7 @@ package solutions
 
 import utils.Input
 import utils.Solution
+import utils.popWhile
 import java.util.*
 
 // run only this day
@@ -82,16 +83,5 @@ class Day7NoSpaceLeftOnDevice : Solution() {
         val targetFreeSpace = neededDiskSpace - (totalDiskSpace - usedDiskSpace)
 
         return dirs.values.groupBy { it > targetFreeSpace }[true]!!.min()
-    }
-
-    // like takeWhile(), but it pops.
-    private fun Stack<String>.popWhile(predicate: (String) -> Boolean): List<String> {
-        val popped = mutableListOf<String>()
-
-        while (isNotEmpty() && predicate(peek())) {
-            popped.add(pop())
-        }
-
-        return popped
     }
 }
