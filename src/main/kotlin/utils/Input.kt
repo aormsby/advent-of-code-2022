@@ -1,6 +1,7 @@
 package utils
 
 import models.Coord2d
+import models.Grid
 import java.io.IOException
 
 object Input {
@@ -87,4 +88,13 @@ object Input {
                 }
             } as MutableList
         } as MutableList
+
+    /**
+     * Uses [parseTo2dList] results in [Grid] constructor.
+     * Perhaps next year I'll consolidate these funcs.
+     */
+    inline fun <reified T> parseToGrid(
+        filename: String,
+        delimiter: String = ""
+    ): Grid<T> = Grid(parseTo2dList<T>(filename, delimiter))
 }

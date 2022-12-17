@@ -1,6 +1,7 @@
 package solutions
 
 import models.Coord2d
+import models.Grid
 import utils.Input
 import utils.Solution
 
@@ -18,7 +19,6 @@ class Day14RegolithReservoir : Solution() {
     init {
         begin("Day 14 - Regolith Reservoir")
 
-        // TODO: replace parse with parseToGrid (make)
         val input = Input.parseTo2dList<Coord2d>(filename = "/d14_cave_scan.txt", delimiter = " -> ")
         val cave = buildCave(input)
 
@@ -29,9 +29,9 @@ class Day14RegolithReservoir : Solution() {
         output("Sand Spout Blocked", sol2 + sol1)
     }
 
-    // TODO: remove mutability for speed?
-    private fun simulateSandToResting(cave: MutableList<MutableList<Char>>, hasFloor: Boolean): Int {
-        val sandSpoutPos = Coord2d(0, cave.first().indexOf(sandSpout))
+    // system for simulating seeping sand
+    private fun simulateSandToResting(cave: Grid<Char>, hasFloor: Boolean): Int {
+        val sandSpoutPos = Coord2d(0, cave.g.first().indexOf(sandSpout))
         var grainsDropped = 0
         var infiniteSpill = false
 
@@ -44,7 +44,7 @@ class Day14RegolithReservoir : Solution() {
                 fell = grain.fallIn(cave)
 
                 //part 1 end
-                if (fell && hasFloor.not() && grain.x == cave.size - 2) {
+                if (fell && hasFloor.not() && grain.x == cave.g.size - 2) {
                     infiniteSpill = true
                     break
                 } else if (!fell) {
@@ -64,7 +64,7 @@ class Day14RegolithReservoir : Solution() {
     }
 
     // check 3 points beneath grain and fall into first open, return false if resting
-    private fun Coord2d.fallIn(cave: List<List<Char>>): Boolean {
+    private fun Coord2d.fallIn(cave: Grid<Char>): Boolean {
         val beneath = listOf(
             Coord2d(x + 1, y),
             Coord2d(x + 1, y - 1),
@@ -84,13 +84,13 @@ class Day14RegolithReservoir : Solution() {
         return false
     }
 
-    private fun buildCave(scan: List<List<Coord2d>>): MutableList<MutableList<Char>> {
+    private fun buildCave(scan: List<List<Coord2d>>): Grid<Char> {
         // arbitrary size, position normalizer so I don't have to grow list
         val caveSize = Coord2d(360, 360)
         val caveNorm = Coord2d(0, 500 - ((caveSize.x / 2) + 1))
 
         // empty cave
-        val cave = MutableList(size = caveSize.y) { MutableList(size = caveSize.x) { air } }
+        val cave = Grid(g = MutableList(size = caveSize.y) { MutableList(size = caveSize.x) { air } })
 
         // set sand point
         cave[Coord2d(0, 500) - caveNorm] = sandSpout
@@ -106,27 +106,15 @@ class Day14RegolithReservoir : Solution() {
         }
 
         //trim
-        var trimSize = cave.takeLastWhile { line -> line.filterNot { it == air }.isEmpty() }.size
+        var trimSize = cave.g.takeLastWhile { line -> line.filterNot { it == air }.isEmpty() }.size
         while (trimSize > 1) {
-            cave.removeLast()
+            cave.g.removeLast()
             trimSize--
         }
 
         // add floor
-        cave.add(MutableList(size = cave.last().size - 1) { rock })
+        cave.g.add(MutableList(size = cave.g.last().size - 1) { rock })
 
         return cave
-    }
-
-    // TODO: make a simple Grid class and add these to it
-    operator fun <T> List<List<T>>.get(coord: Coord2d): T = this[coord.x][coord.y]
-    operator fun <T> MutableList<MutableList<T>>.set(coord: Coord2d, value: T) {
-        this[coord.x][coord.y] = value
-    }
-
-    operator fun <T> MutableList<MutableList<T>>.set(coords: List<Coord2d>, value: T) {
-        coords.forEach { c ->
-            this[c.x][c.y] = value
-        }
     }
 }
