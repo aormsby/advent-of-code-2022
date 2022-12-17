@@ -1,5 +1,6 @@
 package utils
 
+import models.Coord2d
 import java.util.*
 
 object Collections {

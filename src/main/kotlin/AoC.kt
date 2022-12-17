@@ -17,7 +17,7 @@ fun main() {
     Day11MonkeyInTheMiddle()
     Day12HillClimbingAlgorithm()
     Day13DistressSignal()
-//    Day14()
+    Day14RegolithReservoir()
 //    Day15()
 //    Day16()
 //    Day17()

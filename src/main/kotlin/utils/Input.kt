@@ -79,6 +79,10 @@ object Input {
                 when (T::class) {
                     Int::class -> str.toInt() as T
                     Char::class -> str.single() as T
+                    Coord2d::class -> with(str.split(',')) {
+                        Coord2d(first().toInt(), last().toInt()) as T
+                    }
+
                     else -> str as T     //String
                 }
             } as MutableList

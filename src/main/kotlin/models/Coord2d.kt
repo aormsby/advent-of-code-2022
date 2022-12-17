@@ -13,6 +13,20 @@ data class Coord2d(
     operator fun times(c: Coord2d) = Coord2d(x = x * c.x, y = y * c.y)
     operator fun times(n: Int) = Coord2d(x = x * n, y = y * n)
 
+    operator fun rangeTo(c: Coord2d): List<Coord2d> {
+        var cur = this
+        val cList = mutableListOf<Coord2d>()
+        val diff = diffWith(c)
+
+        while(cur != c) {
+            cList.add(cur)
+            cur += diff.signs()
+        }
+        cList += c
+
+        return cList
+    }
+
     fun signs() = Coord2d(x.sign, y.sign)
 
     fun adjacentNeighbors(xLimit: Int = -1, yLimit: Int = -1): List<Coord2d> {
@@ -62,6 +76,12 @@ data class Coord2d(
 
     fun diffWith(c: Coord2d): Coord2d = Coord2d(c.x - x, c.y - y)
     fun opposite(): Coord2d = Coord2d(x * -1, y * -1)
+    fun reversed(): Coord2d = Coord2d(y, x)
+
+    fun stepTowardZeros() {
+        x -= x.sign
+        y -= y.sign
+    }
 
     override fun toString(): String = "($x, $y)"
 }
