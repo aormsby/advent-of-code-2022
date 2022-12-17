@@ -18,7 +18,7 @@ fun main() {
     Day12HillClimbingAlgorithm()
     Day13DistressSignal()
     Day14RegolithReservoir()
-//    Day15()
+    Day15BeaconExclusionZone()
 //    Day16()
 //    Day17()
 //    Day18()

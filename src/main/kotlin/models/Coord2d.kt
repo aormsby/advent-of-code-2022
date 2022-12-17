@@ -76,7 +76,9 @@ data class Coord2d(
 
     fun diffWith(c: Coord2d): Coord2d = Coord2d(c.x - x, c.y - y)
     fun opposite(): Coord2d = Coord2d(x * -1, y * -1)
-    fun reversed(): Coord2d = Coord2d(y, x)
+    fun reversed() = Coord2d(y, x)
+    fun abs(): Coord2d = Coord2d(abs(y), abs(x))
+    fun sum(): Int = x + y
 
     fun stepTowardZeros() {
         x -= x.sign
