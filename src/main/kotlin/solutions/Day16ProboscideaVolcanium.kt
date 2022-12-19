@@ -37,14 +37,16 @@ class Day16ProboscideaVolcanium : Solution() {
     }
 
     private fun releaseMostPressure(graph: Map<String, Valve>): Int {
-        return optimalFlowRelease(
+        val x = findAllPaths(
             graph.filter { it.value.flowRate != 0 || it.value.name == "AA" },
             start = "AA"
         )
+
+        return x.values.max()
     }
 
     private fun releasePressureElephantStyle(graph: Map<String, Valve>): Int {
-        val me = optimalFlowRelease(
+        val me = findAllPaths(
             graph.filter { it.value.flowRate != 0 || it.value.name == "AA" },
             start = "AA",
             maxTime = 26
@@ -54,49 +56,60 @@ class Day16ProboscideaVolcanium : Solution() {
         return -1
     }
 
-    private fun optimalFlowRelease(
+    private fun findAllPaths(
         graph: Map<String, Valve>,
         start: String,
         maxFlow: Int = 0,
         curPath: MutableList<String> = mutableListOf(),
         maxTime: Int = 30
-    ): Int {
+    ): Map<String, Int> {
         // local var init
-        var m = maxFlow
+        var mflow = maxFlow
+        val scoreMap = mutableMapOf<String, Int>()
 
-        // add current to path and find neighbors
+        // add current node to path
         curPath.add(start)
 
-        // if current steps are over the max time, just break out of this path - else check max flow
-        val timeAndFlowCheck = calculateTotalFlow(curPath.map { graph[it]!! }, maxTime)
-        if (timeAndFlowCheck == -1) {
-            return m
-        } else m = max(m, timeAndFlowCheck)
+        // if current steps are over the max time, just break out of this path - else maybe add a max flow
+        if (overTime(curPath.map { graph[it]!! }, maxTime)) {
+            return scoreMap
+        } else scoreMap[curPath.joinToString(",")] = calculateTotalFlow(curPath.map { graph[it]!! }, maxTime)
 
+        // TODO: if this works, try with actual valves, not strings, should reduce conversions
         val next = graph.map { it.value.name }.filter { it !in curPath }
 
         // when neighbors available
         for (n in next) {
-            m = max(m, optimalFlowRelease(graph, n, m, curPath))
+            val result = findAllPaths(graph, n, mflow, curPath)
+            if (result.isNotEmpty()) {
+                result.forEach {
+                    mflow = max(mflow, it.value)
+                    scoreMap[it.key] = it.value
+                }
+            }
             curPath.removeLast()
         }
 
-        return m
+        return scoreMap
     }
+
+    // the additional 'path.size - 1' adds a step for the 'open valve' action
+    private fun overTime(path: List<Valve>, maxTime: Int = 30): Boolean =
+        path.mapIndexed { i, v ->
+            if (i < path.size - 1) {
+                v.stepsTo[path[i + 1].name]!!
+            } else 0
+        }.sum() + (path.size) > maxTime
+
 
     // returns -1 is steps over max time
     private fun calculateTotalFlow(pathItems: List<Valve>, maxTime: Int = 30): Int {
         var minute = 1
         var totalFlow = 0
 
-        pathItems.windowed(2).forEachIndexed { i, w ->
+        pathItems.windowed(2).forEach { w ->
             // +1 for opening valve action
             minute += (w.first().stepsTo[w.last().name]!! + 1)
-
-            // TODO: remove if if this doesn't happen
-            // early out
-            if (minute > maxTime)
-                return -1
 
             // add to total flow for remaining minutes
             totalFlow += w.last().flowTotalAt[minute - 1]
@@ -161,3 +174,33 @@ class Day16ProboscideaVolcanium : Solution() {
         val stepsTo: MutableMap<String, Int> = mutableMapOf(),
     )
 }
+
+//private fun optimalFlowRelease(
+//    graph: Map<String, Day16ProboscideaVolcanium.Valve>,
+//    start: String,
+//    maxFlow: Int = 0,
+//    curPath: MutableList<String> = mutableListOf(),
+//    maxTime: Int = 30
+//): Int {
+//    // local var init
+//    var m = maxFlow
+//
+//    // add current to path and find neighbors
+//    curPath.add(start)
+//
+//    // if current steps are over the max time, just break out of this path - else check max flow
+//    val timeAndFlowCheck = calculateTotalFlow(curPath.map { graph[it]!! }, maxTime)
+//    if (timeAndFlowCheck == -1) {
+//        return m
+//    } else m = max(m, timeAndFlowCheck)
+//
+//    val next = graph.map { it.value.name }.filter { it !in curPath }
+//
+//    // when neighbors available
+//    for (n in next) {
+//        m = max(m, optimalFlowRelease(graph, n, m, curPath))
+//        curPath.removeLast()
+//    }
+//
+//    return m
+//}
