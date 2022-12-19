@@ -37,7 +37,10 @@ class Day16ProboscideaVolcanium : Solution() {
         // TODO: probably extract and use with part 2
         val fullGraph = input.associateBy { v -> v.name }
         generateTravelMaps(fullGraph)
-        return optimalPath(fullGraph.filter { it.value.flowRate != 0 || it.value.name == "AA" }, start = "AA")
+        return optimalPath(
+            fullGraph.filter { it.value.flowRate != 0 || it.value.name == "AA" },
+            start = "AA"
+        ).first
     }
 
     private fun optimalPath(
@@ -45,7 +48,8 @@ class Day16ProboscideaVolcanium : Solution() {
         start: String,
         maxFlow: Int = 0,
         path: MutableList<String> = mutableListOf()
-    ): Int {
+    ): Pair<Int, List<String>?> {
+        var badPath: List<String>? = null
         var max = maxFlow
         path.add(start)
 
@@ -53,15 +57,19 @@ class Day16ProboscideaVolcanium : Solution() {
         val nextOpen = valves.map { it.value.name }.filter { it !in path }
 
         if (nextOpen.isEmpty()) {
-            max = max(max, calculateTotalFlow(path.map { valves[it]!! }))
+            val calc = calculateTotalFlow(path.map { valves[it]!! })
+            if (calc < path.size) badPath = path.take(calc + 1)
+            else max = max(max, calculateTotalFlow(path.map { valves[it]!! }))
         } else {
             nextOpen.forEach {
-                max = max(max, optimalPath(valves, start = it, max, path))
+                val nextResult = optimalPath(valves, start = it, max, path)
                 path.removeLast()
+                nextResult.second?.let { bad -> badPath = bad }
+                    ?: run { max = max(max, nextResult.first) }
             }
         }
 
-        return max
+        return max to badPath
     }
 
     /** try DFS
@@ -120,14 +128,14 @@ class Day16ProboscideaVolcanium : Solution() {
         var minute = 1
         var totalFlow = 0
 
-        pathItems.windowed(2).forEach { w ->
+        pathItems.windowed(2).forEachIndexed { i, w ->
             // +1 for opening valve action
             minute += (w.first().stepsTo[w.last().name]!! + 1)
 
             // TODO: remove if if this doesn't happen
             // early out
             if (minute > 30)
-                return -1
+                return i
 
             // add to total flow for remaining minutes
             totalFlow += w.last().flowTotalAt[minute - 1]
