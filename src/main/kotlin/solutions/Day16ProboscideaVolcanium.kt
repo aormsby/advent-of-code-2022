@@ -26,57 +26,84 @@ class Day16ProboscideaVolcanium : Solution() {
                 )
             }
 
-        val sol1 = releaseMostPressure(input)
-        output("Max Pressure Release", sol1)
-
-        val sol2 = "2222"
-        output("string 2", sol2)
-    }
-
-    private fun releaseMostPressure(input: List<Valve>): Int {
-        // TODO: probably extract and use with part 2
         val fullGraph = input.associateBy { v -> v.name }
         generateTravelMaps(fullGraph)
-        return optimalPath(
-            fullGraph.filter { it.value.flowRate != 0 || it.value.name == "AA" },
-            start = "AA"
-        ).first
+
+        val sol1 = releaseMostPressure(fullGraph)
+        output("Max Pressure Release", sol1)
+
+//        val sol2 = releasePressureElephantStyle(fullGraph)
+//        output("Max Elephant-Assisted Pressure Release", sol2)
     }
 
-    private fun optimalPath(
-        valves: Map<String, Valve>,
+    private fun releaseMostPressure(graph: Map<String, Valve>): Int {
+        return optimalFlowRelease(
+            graph.filter { it.value.flowRate != 0 || it.value.name == "AA" },
+            start = "AA"
+        )
+    }
+
+    private fun releasePressureElephantStyle(graph: Map<String, Valve>): Int {
+        val me = optimalFlowRelease(
+            graph.filter { it.value.flowRate != 0 || it.value.name == "AA" },
+            start = "AA",
+            maxTime = 26
+        )
+
+//        val elephant =
+        return -1
+    }
+
+    private fun optimalFlowRelease(
+        graph: Map<String, Valve>,
         start: String,
         maxFlow: Int = 0,
-        path: MutableList<String> = mutableListOf()
-    ): Pair<Int, List<String>?> {
-        var badPath: List<String>? = null
-        var max = maxFlow
-        path.add(start)
+        curPath: MutableList<String> = mutableListOf(),
+        maxTime: Int = 30
+    ): Int {
+        // local var init
+        var m = maxFlow
 
-        val v = valves[start]!!
-        val nextOpen = valves.map { it.value.name }.filter { it !in path }
+        // add current to path and find neighbors
+        curPath.add(start)
 
-        if (nextOpen.isEmpty()) {
-            val calc = calculateTotalFlow(path.map { valves[it]!! })
-            if (calc < path.size) badPath = path.take(calc + 1)
-            else max = max(max, calculateTotalFlow(path.map { valves[it]!! }))
-        } else {
-            nextOpen.forEach {
-                val nextResult = optimalPath(valves, start = it, max, path)
-                path.removeLast()
-                nextResult.second?.let { bad -> badPath = bad }
-                    ?: run { max = max(max, nextResult.first) }
-            }
+        // if current steps are over the max time, just break out of this path - else check max flow
+        val timeAndFlowCheck = calculateTotalFlow(curPath.map { graph[it]!! }, maxTime)
+        if (timeAndFlowCheck == -1) {
+            return m
+        } else m = max(m, timeAndFlowCheck)
+
+        val next = graph.map { it.value.name }.filter { it !in curPath }
+
+        // when neighbors available
+        for (n in next) {
+            m = max(m, optimalFlowRelease(graph, n, m, curPath))
+            curPath.removeLast()
         }
 
-        return max to badPath
+        return m
     }
 
-    /** try DFS
-     *      - need to find the highest flow rate based on order of opening valves
-     *      - how to short circuit?
-     *       ?? + if totalFlow + (remaining valves * remaining time) < highest recorded flow, skip
-     */
+    // returns -1 is steps over max time
+    private fun calculateTotalFlow(pathItems: List<Valve>, maxTime: Int = 30): Int {
+        var minute = 1
+        var totalFlow = 0
+
+        pathItems.windowed(2).forEachIndexed { i, w ->
+            // +1 for opening valve action
+            minute += (w.first().stepsTo[w.last().name]!! + 1)
+
+            // TODO: remove if if this doesn't happen
+            // early out
+            if (minute > maxTime)
+                return -1
+
+            // add to total flow for remaining minutes
+            totalFlow += w.last().flowTotalAt[minute - 1]
+        }
+
+        return totalFlow
+    }
 
     private fun generateTravelMaps(vGraph: Map<String, Valve>) {
         val valveKeys = vGraph.keys
@@ -124,27 +151,6 @@ class Day16ProboscideaVolcanium : Solution() {
         }
     }
 
-    private fun calculateTotalFlow(pathItems: List<Valve>): Int {
-        var minute = 1
-        var totalFlow = 0
-
-        pathItems.windowed(2).forEachIndexed { i, w ->
-            // +1 for opening valve action
-            minute += (w.first().stepsTo[w.last().name]!! + 1)
-
-            // TODO: remove if if this doesn't happen
-            // early out
-            if (minute > 30)
-                return i
-
-            // add to total flow for remaining minutes
-            totalFlow += w.last().flowTotalAt[minute - 1]
-        }
-
-        return totalFlow
-    }
-
-
     // tODO: strip unneeded properties
     private data class Valve(
         val name: String,
@@ -155,74 +161,3 @@ class Day16ProboscideaVolcanium : Solution() {
         val stepsTo: MutableMap<String, Int> = mutableMapOf(),
     )
 }
-
-/**
- * idea!
- *
- * generate a map of possible flow accumulation by each minute on - for each valve
- *      - 30 minutes open produces x
- *      - 29 minutes open produces x
- *      - and so on
- *
- * then generate a graph of steps from each point to each other point
- *      - start with AA (or if it makes sense, find the valve most connected to others?)
- *      - BFS and store the least number of steps to each other valve
- *      - mark AA as 'solved'
- *      - when BFSing from other valves, check each connected valve for a solved number of steps
- *          + this should reduce the number of iterations more with each solve
- *      - when all solved, go save the elephants
- *
- * then during each round
- *      - make a list of remaining open valves paired with the remaining flow rate available
- *          once you can open them (+ 2 minutes for move and open)
- *      - move to the best one
- */
-
-
-//var curValve = vGraph["AA"]!!
-//
-//var openFlowRate = 0
-//var hasFlown = 0
-//
-//// time progression includes 1
-//for (t in 30 downTo 1) {
-//
-//    // track flow each round
-//    hasFlown += openFlowRate
-//
-//    println("${31 - t}, $openFlowRate")
-//
-//    with(curValve) {
-//        // connected valves, sorted by highest flow rate
-//        val next = connections.map { vGraph[it]!! }
-//            .sortedByDescending { it.flowRate }
-//
-//        // valves with higher flow rates that aren't open yet
-//        val better = next.filter { it.flowRate > flowRate && it.isOpen.not() }
-//
-//        when {
-//            // open, find better options
-//            isOpen -> {
-//                // move to better
-//                curValve =
-//                    if (better.isNotEmpty())
-//                        better.first()
-//                    else next.first { it.isOpen.not() }
-//                // if none better... this is the unsure bit
-//            }
-//
-//            // not open, but there are better options
-//            better.isNotEmpty() -> {
-//                curValve = better.first()
-//            }
-//
-//            // not open, best option
-//            else -> {
-//                isOpen = true
-//                openFlowRate += flowRate
-//            }
-//        }
-//    }
-//}
-//
-//return hasFlown
