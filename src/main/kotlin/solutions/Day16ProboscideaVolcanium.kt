@@ -41,62 +41,61 @@ class Day16ProboscideaVolcanium : Solution() {
     private fun releaseMostPressure(graph: Map<String, Valve>): Int {
         val x = findAllPaths(
             graph.filter { it.value.flowRate != 0 || it.value.name == "AA" },
-            start = "AA",
+            start = graph["AA"]!!,
         )
-        return x.values.max()
+        return x.keys.max()
     }
 
-    private fun releasePressureElephantStyle(graph: Map<String, Valve>): Int {
-        val pathMap = findAllPaths(
-            graph.filter { it.value.flowRate != 0 || it.value.name == "AA" },
-            start = "AA",
-            startMinute = 4
-        ).mapKeys { it.key.removePrefix("AA,") }
-
-        val paths = with(pathMap.entries.sortedByDescending { it.value }.map { it.key }) {
-            associateWith { it.split(',').toSet() }
-        }
-        var maxAssistedFlow = 0
-
-        for (p in paths) {
-            for (p2 in paths) {
-                if (p.value.intersect(p2.value).isEmpty()) {
-                    maxAssistedFlow = max(
-                        maxAssistedFlow,
-                        pathMap[p.key]!! + pathMap[p2.key]!!
-                    )
-                    break
-                }
-            }
-        }
-
-        return maxAssistedFlow
-    }
+//    private fun releasePressureElephantStyle(graph: Map<String, Valve>): Int {
+//        val pathMap = findAllPaths(
+//            graph.filter { it.value.flowRate != 0 || it.value.name == "AA" },
+//            start = "AA",
+//            startMinute = 4
+//        ).mapKeys { it.key.removePrefix("AA,") }
+//
+//        val paths = with(pathMap.entries.sortedByDescending { it.value }.map { it.key }) {
+//            associateWith { it.split(',').toSet() }
+//        }
+//        var maxAssistedFlow = 0
+//
+//        for (p in paths) {
+//            for (p2 in paths) {
+//                if (p.value.intersect(p2.value).isEmpty()) {
+//                    maxAssistedFlow = max(
+//                        maxAssistedFlow,
+//                        pathMap[p.key]!! + pathMap[p2.key]!!
+//                    )
+//                    break
+//                }
+//            }
+//        }
+//
+//        return maxAssistedFlow
+//    }
 
     private fun findAllPaths(
         graph: Map<String, Valve>,
-        start: String,
-        curPath: MutableList<String> = mutableListOf(),
+        start: Valve,
+        curPath: MutableList<Valve> = mutableListOf(),
         startMinute: Int = 1
-    ): Map<String, Int> {
+    ): Map<Int, List<Valve>> {
         // local var init
-        val scoreMap = mutableMapOf<String, Int>()
+        val scoreMap = mutableMapOf<Int, List<Valve>>()
 
         // add current node to path
         curPath.add(start)
 
-        val curSteps = mapSteps(curPath.map { graph[it]!! }, startMinute)
+        val curSteps = mapSteps(curPath, startMinute)
         if (curSteps.last() > thirty - startMinute) {
             return scoreMap
         }
 
         // get connected valves
-        val next = graph.map { it.value.name }.filter { it !in curPath }
+        val next = graph.values.filter { it !in curPath }
 
         // if at the end of a path, record and break out
         if (next.isEmpty()) {
-            scoreMap[curPath.joinToString(",")] =
-                calculateTotalFlow(curPath.map { graph[it]!! }, curSteps, startMinute - 1)
+            scoreMap[calculateTotalFlow(curPath, curSteps, startMinute - 1)] = curPath
             return scoreMap
         } else {
 
@@ -108,8 +107,7 @@ class Day16ProboscideaVolcanium : Solution() {
                         scoreMap[it.key] = it.value
                     }
                 } else {
-                    scoreMap[curPath.joinToString(",")] =
-                        calculateTotalFlow(curPath.map { graph[it]!! }, curSteps, startMinute - 1)
+                    scoreMap[calculateTotalFlow(curPath, curSteps, startMinute - 1)] = curPath
                 }
 
                 curPath.removeLast()
@@ -183,7 +181,7 @@ class Day16ProboscideaVolcanium : Solution() {
             }
         }
     }
-    
+
     private data class Valve(
         val name: String,
         val flowRate: Int,
@@ -197,15 +195,15 @@ class Day16ProboscideaVolcanium : Solution() {
 /**
  * optimize notes - maybe no need to do dfs twice
  *
- * 0 - try using valves instead of string lists to reduce conversions during dfs (may not help)
- * 1 - pass 30-minute search into part 2
- * 2 - don't to dfs again, but loop over map of valves and check if over time (at the same time as intersecting?)
- * x - remove time offset from dfs since it's only needed for p2 calculations
+ * √ - try using valves instead of string lists to reduce conversions during dfs (may not help)
+ * ? - pass 30-minute search into part 2
+ * ? - don't to dfs again, but loop over map of valves and check if over time (at the same time as intersecting?)
+ * ? - remove time offset from dfs since it's only needed for p2 calculations
  * x - address todos/cleanup, comment nicely
  *
  * Benchmark
  * Part 1 -> Max Pressure Release = 2250
- *   -- 694 ms
+ *   -- 490 ms!!
  * Part 2 -> Max Elephant-Assisted Pressure Release = 3015
  *   -- 1767 ms
  */
