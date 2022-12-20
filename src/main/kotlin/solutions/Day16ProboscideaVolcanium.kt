@@ -23,7 +23,7 @@ class Day16ProboscideaVolcanium : Solution() {
                 Valve(
                     name = captureGroups[0],
                     flowRate = captureGroups[1].toInt(),
-                    flowTotalAt = IntRange(1, thirty).map { it * captureGroups[1].toInt() }.reversed(),
+                    flowTotalFrom = IntRange(1, thirty).map { it * captureGroups[1].toInt() }.reversed(),
                     connections = captureGroups[2].split(", ")
                 )
             }
@@ -34,21 +34,23 @@ class Day16ProboscideaVolcanium : Solution() {
         val sol1 = releaseMostPressure(fullGraph)
         output("Max Pressure Release", sol1)
 
-        val sol2 = releasePressureElephantStyle(fullGraph)
-        output("Max Elephant-Assisted Pressure Release", sol2)
+//        val sol2 = releasePressureElephantStyle(fullGraph)
+//        output("Max Elephant-Assisted Pressure Release", sol2)
     }
 
-    private fun releaseMostPressure(graph: Map<String, Valve>): Int =
-        findAllPaths(
+    private fun releaseMostPressure(graph: Map<String, Valve>): Int {
+        val x = findAllPaths(
             graph.filter { it.value.flowRate != 0 || it.value.name == "AA" },
             start = "AA",
-        ).values.max()
+        )
+        return x.values.max()
+    }
 
     private fun releasePressureElephantStyle(graph: Map<String, Valve>): Int {
         val pathMap = findAllPaths(
             graph.filter { it.value.flowRate != 0 || it.value.name == "AA" },
             start = "AA",
-            startOffset = 4
+            startMinute = 4
         ).mapKeys { it.key.removePrefix("AA,") }
 
         val paths = with(pathMap.entries.sortedByDescending { it.value }.map { it.key }) {
@@ -74,63 +76,66 @@ class Day16ProboscideaVolcanium : Solution() {
     private fun findAllPaths(
         graph: Map<String, Valve>,
         start: String,
-        maxFlow: Int = 0,
         curPath: MutableList<String> = mutableListOf(),
-        startOffset: Int = 0
+        startMinute: Int = 1
     ): Map<String, Int> {
         // local var init
-        var mflow = maxFlow
         val scoreMap = mutableMapOf<String, Int>()
 
         // add current node to path
         curPath.add(start)
 
-        // if current steps are over the max time, just break out of this path - else maybe add a max flow
-        if (overTime(curPath.map { graph[it]!! }, startOffset)) {
+        val curSteps = mapSteps(curPath.map { graph[it]!! }, startMinute)
+        if (curSteps.last() > thirty - startMinute) {
             return scoreMap
-        } else scoreMap[curPath.joinToString(",")] = calculateTotalFlow(curPath.map { graph[it]!! }, startOffset)
+        }
 
-        // TODO: if this works, try with actual valves, not strings, should reduce conversions
+        // get connected valves
         val next = graph.map { it.value.name }.filter { it !in curPath }
 
-        // when neighbors available
-        for (n in next) {
-            val result = findAllPaths(graph, n, mflow, curPath, startOffset)
-            if (result.isNotEmpty()) {
-                result.forEach {
-                    mflow = max(mflow, it.value)
-                    scoreMap[it.key] = it.value
+        // if at the end of a path, record and break out
+        if (next.isEmpty()) {
+            scoreMap[curPath.joinToString(",")] =
+                calculateTotalFlow(curPath.map { graph[it]!! }, curSteps, startMinute - 1)
+            return scoreMap
+        } else {
+
+            for (n in next) {
+                val result = findAllPaths(graph, n, curPath, startMinute)
+
+                if (result.isNotEmpty()) {
+                    result.forEach {
+                        scoreMap[it.key] = it.value
+                    }
+                } else {
+                    scoreMap[curPath.joinToString(",")] =
+                        calculateTotalFlow(curPath.map { graph[it]!! }, curSteps, startMinute - 1)
                 }
+
+                curPath.removeLast()
             }
-            curPath.removeLast()
         }
 
         return scoreMap
     }
 
-    // the additional 'path.size - 1' adds a step for the 'open valve' action
-    private fun overTime(path: List<Valve>, startOffset: Int = 0): Boolean =
-        path.mapIndexed { i, v ->
-            if (i < path.size - 1) {
-                v.stepsTo[path[i + 1].name]!!
-            } else 0
-        }.sum() + (path.size) + startOffset > thirty
-
-
-    // calculates flow of open valves across time
-    private fun calculateTotalFlow(pathItems: List<Valve>, startOffset: Int = 0): Int {
-        var minute = 1 + startOffset
-        var totalFlow = 0
-
-        pathItems.windowed(2).forEach { w ->
-            // +1 for opening valve action
-            minute += (w.first().stepsTo[w.last().name]!! + 1)
-
-            // add to total flow for remaining minutes
-            totalFlow += w.last().flowTotalAt[minute - 1]
+    // +1 to each for open valve action
+    private fun mapSteps(path: List<Valve>, startMinute: Int): List<Int> =
+        path.windowed(2).runningFold(initial = startMinute) { acc, w ->
+            acc + w.first().stepsTo[w.last().name]!! + 1
         }
 
-        return totalFlow
+    // calculates flow of open valves across time
+    private fun calculateTotalFlow(
+        path: List<Valve>,
+        steps: List<Int>,
+        minuteOffset: Int
+    ): Int {
+        val x = steps.foldIndexed(initial = 0) { i, acc, s ->
+            acc + path[i].flowTotalFrom[s - 1 + minuteOffset]
+        }
+
+        return x
     }
 
     private fun generateTravelMaps(vGraph: Map<String, Valve>) {
@@ -178,14 +183,12 @@ class Day16ProboscideaVolcanium : Solution() {
             }
         }
     }
-
-    // tODO: strip unneeded properties
+    
     private data class Valve(
         val name: String,
         val flowRate: Int,
-        val flowTotalAt: List<Int>,
+        val flowTotalFrom: List<Int>,
         val connections: List<String>,
-        var isOpen: Boolean = false,
         val stepsTo: MutableMap<String, Int> = mutableMapOf(),
     )
 }
