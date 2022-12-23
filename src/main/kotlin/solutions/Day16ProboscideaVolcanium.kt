@@ -3,6 +3,7 @@ package solutions
 import utils.Input
 import utils.Solution
 import kotlin.collections.set
+import kotlin.math.max
 
 // run only this day
 fun main() {
@@ -34,12 +35,12 @@ class Day16ProboscideaVolcanium : Solution() {
             input["AA"]!!,
             input.values.first().flowTotalAt.size
         )
-//        val sol1 = paths.entries.toList()[712].totalFlow()
-        val sol1 = paths.maxOf { e -> e.totalFlow()}
+
+        val sol1 = paths.maxOf { e -> e.totalFlow() }
         output("Max Solo Pressure Release", sol1)
 
-//        val sol2 = releasePressureElephantStyle(fullGraph)
-//        output("Max Elephant-Assisted Pressure Release", sol2)
+        val sol2 = pairedValving(paths)
+        output("Max Elephant-Assisted Pressure Release", sol2)
     }
 
     /**
@@ -68,7 +69,6 @@ class Day16ProboscideaVolcanium : Solution() {
             innerFind.forEach { item ->
                 pMap[item.key.toList()] = item.value
             }
-//            curPath.removeLastOrNull()
         }
 
         pMap[curPath.toList()] = stepMap
@@ -76,32 +76,35 @@ class Day16ProboscideaVolcanium : Solution() {
         return pMap
     }
 
-//    val pathMap = mutableMapOf<List<String>, List<Int>>()
-//
-//    //        val timeLimit = graph.values.first().minutesToOpen.size
-//    val nextValves = Stack<Valve>().apply { push(graph["AA"]!!) }
-////        val curPath = ArrayDeque<Valve>()
-//
-//    while (nextValves.isNotEmpty()) {
-//        curPath.add(nextValves.pop())
-//
-//        val stepMap = curPath.mapSteps()
-//
-//        // if under time limit, add to path math and push connected valves to stack
-//        if (stepMap.last() < timeLimit) {
-//            pathMap[curPath.map { it.name }] = stepMap
-//            val next = curPath.last().connections.map { graph[it]!! }.filter { it !in curPath }
-//            next.forEach {
-//                nextValves.push(it)
-//            }
-//        } else {
-//            // otherwise remove the latest valve and move to next loop
-//            curPath.removeLast()
-//            continue
-//        }
+    private fun pairedValving(p1Paths: Map<List<Valve>, List<Int>>, timeOffset: Int = 4): Int {
+        val p26 = p1Paths.filterNot { it.key.size == 1 || it.value.last() > thirty - timeOffset - 1 }
+            .mapValues { it.totalFlow(timeOffset) }.entries.sortedByDescending { it.value }
+
+        var maxPairedFlow = 0
+
+        for (p1 in p26) {
+            val p1Set = p1.key.drop(1).toSet()
+
+            for (p2 in p26) {
+                val p2Set = p2.key.drop(1).toSet()
+
+                if ((p1Set intersect p2Set).isEmpty()) {
+                    maxPairedFlow = max(p1.value + p2.value, maxPairedFlow)
+                    break
+                }
+            }
+        }
+
+        return maxPairedFlow
+    }
+
+//    if (p.value.intersect(p2.value).isEmpty()) {
+//        maxAssistedFlow = max(
+//            maxAssistedFlow,
+//            pathMap[p.key]!! + pathMap[p2.key]!!
+//        )
+//        break
 //    }
-//
-//    return pathMap
 
     private fun List<Valve>.mapSteps(): List<Int> {
         val steps = mutableListOf<Int>()
@@ -113,13 +116,13 @@ class Day16ProboscideaVolcanium : Solution() {
         return if (steps.isEmpty()) listOf(0) else steps
     }
 
-    private fun Map.Entry<List<Valve>, List<Int>>.totalFlow(): Int {
+    private fun Map.Entry<List<Valve>, List<Int>>.totalFlow(offset: Int = 0): Int {
         val valves = key.drop(1)
         return if (valves.isEmpty()) {
             0
         } else {
             valves.mapIndexed { i, v ->
-                v.flowTotalAt[value[i]]
+                v.flowTotalAt[value[i] + offset]
             }.sum()
         }
     }
