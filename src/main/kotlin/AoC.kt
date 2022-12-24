@@ -20,7 +20,7 @@ fun main() {
     Day14RegolithReservoir()
     Day15BeaconExclusionZone()
     Day16ProboscideaVolcanium()
-//    Day17()
+    Day17PyroclasticFlow()
 //    Day18()
 //    Day19()
 //    Day20()
