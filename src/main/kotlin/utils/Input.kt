@@ -1,6 +1,7 @@
 package utils
 
 import models.Coord2d
+import models.Coord3d
 import models.Grid
 import java.io.IOException
 
@@ -23,6 +24,7 @@ object Input {
                 when (T::class) {
                     Int::class -> it.toInt() as T
                     Char::class -> it.single() as T
+                    Coord3d::class -> parseToCoord3d(it, delimiter = ",") as T
                     else -> it as T     //String
                 }
             }
@@ -31,6 +33,7 @@ object Input {
                 when (T::class) {
                     Int::class -> str.toInt() as T
                     Char::class -> str.single() as T
+                    Coord3d::class -> parseToCoord3d(it, delimiter = ",") as T
                     else -> it as T     //String
                 }
             }
@@ -66,6 +69,15 @@ object Input {
     fun parseToCoord2d(c: String, delimiter: String = ""): Coord2d =
         with(c.split(delimiter)) {
             Coord2d(x = this[0].toInt(), y = this[1].toInt())
+        }
+
+    /**
+     * @param c current [Coord3d] to parse
+     * @return [Coord3d]
+     */
+    fun parseToCoord3d(c: String, delimiter: String = ""): Coord3d =
+        with(c.split(delimiter)) {
+            Coord3d(x = this[0].toInt(), y = this[1].toInt(), z = this[2].toInt())
         }
 
     /**

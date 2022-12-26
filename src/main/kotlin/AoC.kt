@@ -21,7 +21,7 @@ fun main() {
     Day15BeaconExclusionZone()
     Day16ProboscideaVolcanium()
     Day17PyroclasticFlow()
-//    Day18()
+    Day18BoilingBoulders()
 //    Day19()
 //    Day20()
 //    Day21()
