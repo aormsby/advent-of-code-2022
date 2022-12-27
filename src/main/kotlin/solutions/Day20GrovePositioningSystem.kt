@@ -2,7 +2,6 @@ package solutions
 
 import utils.Input
 import utils.Solution
-import java.util.Deque
 
 // run only this day
 fun main() {
@@ -13,8 +12,8 @@ class Day20GrovePositioningSystem : Solution() {
     init {
         begin("Day 20 - Grove Positioning System")
 
-        val input = Input.parseToListOf<Long>(filename = "/d20_encrypted_file.txt", delimiter = "\n")
-            .mapIndexed { i, n -> Pair(i, n) }
+        val input = Input.parseLines(filename = "/d20_encrypted_file.txt")
+            .mapIndexed { i, n -> Pair(i, n.toLong()) }
 
         val sol1 = findGroveCoordinateSum(input)
         output("Sum of Grove Coordinates", sol1)
