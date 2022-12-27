@@ -23,6 +23,7 @@ object Input {
             parseLines(filename).map {
                 when (T::class) {
                     Int::class -> it.toInt() as T
+                    Long::class -> it.toLong() as T
                     Char::class -> it.single() as T
                     Coord3d::class -> parseToCoord3d(it, delimiter = ",") as T
                     else -> it as T     //String
@@ -32,6 +33,7 @@ object Input {
             it.split(delimiter).filter { s -> s.isNotBlank() }.map { str ->
                 when (T::class) {
                     Int::class -> str.toInt() as T
+                    Long::class -> str.toLong() as T
                     Char::class -> str.single() as T
                     Coord3d::class -> parseToCoord3d(it, delimiter = ",") as T
                     else -> it as T     //String
