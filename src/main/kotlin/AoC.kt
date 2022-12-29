@@ -25,7 +25,7 @@ fun main() {
     Day19NotEnoughMinerals()
     Day20GrovePositioningSystem()
     Day21MonkeyMath()
-//    Day22()
+    Day22MonkeyMap()
 //    Day23()
 //    Day24()
 //    Day25()
